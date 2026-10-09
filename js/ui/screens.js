@@ -7,11 +7,22 @@ import { renderDesk, resetDesk } from './desk.js';
 import { renderVerdict } from './verdict.js';
 import { ink } from '../fx/ink.js';
 
+const TITLES = {
+  title: 'The Archive of Unfinished Lives',
+  brief: 'Intake — The Archive of Unfinished Lives',
+  desk: 'The Desk — The Archive of Unfinished Lives',
+  verdict: 'Verdict — The Archive of Unfinished Lives',
+  epilogue: 'Sealed — The Archive of Unfinished Lives',
+  summary: 'Shelved Files — The Archive of Unfinished Lives',
+  manual: 'Archive Manual — The Archive of Unfinished Lives'
+};
+
 export function renderScreen(ctx, name, payload) {
   const app = document.getElementById('app');
   clear(app);
   const node = screens[name](ctx, payload || {});
   app.appendChild(node);
+  document.title = TITLES[name] || 'The Archive of Unfinished Lives';
   window.scrollTo(0, 0);
   return node;
 }
@@ -24,6 +35,8 @@ const screens = {};
 
 /* ---------------- title ---------------- */
 
+let confirmRestart = false;
+
 screens.title = function (ctx) {
   const run = ctx.run;
   const has = !!run && run.caseIndex > 0;
@@ -34,19 +47,18 @@ screens.title = function (ctx) {
     text: 'Every soul arrives here with what the living could not finish. You file the pages, you mark the lies, you seal a verdict. The Archive is patient. It is not, however, neutral.'
   }));
   const row = el('div.btn-row.center');
-  row.appendChild(el('button.btn.primary.big', {
+  row.appendChild(el('button.btn' + (has && !confirmRestart ? '' : '.primary') + '.big', {
     onclick: function () {
+      if (has && !confirmRestart) { confirmRestart = true; ctx.render('title'); return; }
+      confirmRestart = false;
       ctx.run = ctx.startRun();
       ctx.go('brief');
     }
-  }, has ? 'Abandon this file and start again' : 'Enter the Archive'));
+  }, has ? (confirmRestart ? 'Yes — erase the shelf and begin again' : 'Start a new shelf') : 'Enter the Archive'));
   if (has) {
-    row.appendChild(el('button.btn.big', {
-      onclick: function () {
-        const id = S.currentCaseId(run);
-        ctx.go(id === ctx.cases[ctx.cases.length - 1].id ? 'brief' : 'brief');
-      }
-    }, 'Resume · case ' + (run.caseIndex + 1) + ' of ' + run.cases.length));
+    row.appendChild(el('button.btn.primary.big', {
+      onclick: function () { confirmRestart = false; ctx.go('brief'); }
+    }, 'Resume · file ' + (run.caseIndex + 1) + ' of ' + run.cases.length));
     row.appendChild(el('button.btn.ghost', { onclick: function () { ctx.go('summary'); } }, 'Shelved files'));
   }
   row.appendChild(el('button.btn.ghost', { onclick: function () { ctx.go('manual', { back: 'title' }); } }, 'Archive manual'));

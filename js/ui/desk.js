@@ -83,11 +83,20 @@ export function renderDesk(ctx) {
   ]);
 
   const foot = el('footer.desk-foot', {}, [
-    el('p.foot-note', { text: 'The registrar suspects ' + c.contradictions.length + ' falsehood' + (c.contradictions.length === 1 ? '' : 's') + ' in this file.' }),
-    el('button.btn.primary.big', {
-      disabled: placedCount < Math.ceil(c.fragments.length / 2),
-      onclick: function () { ctx.go('verdict'); }
-    }, 'Prepare verdict')
+    el('p.foot-note', { text: 'The registrar suspects ' + c.contradictions.length + ' falsehood' + (c.contradictions.length === 1 ? '' : 's') + ' in this file · keys 1-9 take a page from the pile · Esc sets it down.' }),
+    el('div.btn-row', {}, [
+      placedCount > 0 ? el('button.btn.ghost', {
+        onclick: function () {
+          Object.keys(run.current.placed).forEach(function (id) { S.unplace(run, id); });
+          sel = null; markPending = null;
+          commit(ctx);
+        }
+      }, 'Clear the record') : null,
+      el('button.btn.primary.big', {
+        disabled: placedCount < Math.ceil(c.fragments.length / 2),
+        onclick: function () { ctx.go('verdict'); }
+      }, 'Prepare verdict')
+    ])
   ]);
 
   root.appendChild(head);
