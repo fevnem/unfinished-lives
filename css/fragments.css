@@ -1,41 +1,380 @@
-/* Fragment cards: the documents themselves.
-   OWNED BY ONE HAND in round 1 — rewrite this file completely if you can do better.
-   Frozen contract: keep every class name below working. */
+/* ==========================================================================
+   The Archive of Unfinished Lives — the fragment card system.
+   The documents themselves: aged, varied paper laid on a dark desk.
 
-.frag-list { display: flex; flex-direction: column; gap: 0.6rem; }
+   FROZEN CONTRACT — every selector here must keep working:
+     .frag-list, .frag, .frag-head, .frag-kind, .frag-key,
+     .frag-label, .frag-text, .frag-pin
+     states:  .frag:hover, .frag:focus-visible, .frag:active,
+              .frag.is-selected, .frag.is-filed
+     stock:   .frag[data-kind="letter"|"form"|"receipt"|"transcript"
+                                |"photo"|"object"|"margin"]
 
-.frag {
-  position: relative;
-  background: linear-gradient(160deg, #ece5d2, #ded4bb);
-  color: #241d14;
-  border: 1px solid #c0b291;
-  border-radius: 2px;
-  padding: 0.6rem 0.75rem 0.7rem;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-  transition: transform 120ms ease, box-shadow 120ms ease;
+   The SAME .frag node renders twice: in .frag-list (the pile, wide) and inside
+   .slot-body (the timeline, a narrow column). So every layout rule is
+   width-independent — intrinsic sizing, flex-wrap, min-width:0 — never a
+   fixed measure, never a viewport query. Palette and type come from base.css.
+   Offline: no @import, no url(), no images, no JS. Honours
+   prefers-reduced-motion. Built for ~40 cards: static gradients only, no
+   filter/blur, transitions <= 130ms.
+   ========================================================================== */
+
+/* ---------- the pile ---------- */
+.frag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.62rem;
+  padding-bottom: 0.2rem;
 }
 
-.frag:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
+/* ---------- the sheet of paper ---------- */
+.frag {
+  /* deterministic tilt + hover/selection lift, both composited transforms */
+  --rot: 0deg;
+  --lift: 0px;
+
+  /* paper stock: the kind rules below swap only this one layer */
+  --stock: linear-gradient(163deg, var(--paper) 0%, var(--paper-2) 78%, var(--paper-3) 100%);
+
+  /* ageing laid over every stock: a lit top-left, a shadowed tail, faint
+     fibre. Kept subtle so small type stays legible. */
+  --aged:
+    radial-gradient(135% 115% at 5% 3%, rgba(255, 252, 240, 0.5), transparent 44%),
+    radial-gradient(135% 130% at 99% 107%, rgba(74, 55, 30, 0.32), transparent 58%),
+    repeating-linear-gradient(0deg, rgba(80, 61, 30, 0.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(80, 61, 30, 0.03) 0 1px, transparent 1px 5px);
+
+  position: relative;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.62rem 0.8rem 0.72rem;
+
+  color: #241d14;
+  font-family: var(--serif);
+  background-image: var(--aged), var(--stock);
+  border: 1px solid rgba(118, 99, 68, 0.5);
+  border-radius: 2px;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 1px 2px rgba(0, 0, 0, 0.32),
+    0 12px 22px -12px rgba(0, 0, 0, 0.75);
+
+  transform: rotate(var(--rot)) translateY(var(--lift));
+  transform-origin: 50% 50%;
+  cursor: pointer;
+  overflow-wrap: break-word;
+  transition: transform 130ms ease, box-shadow 130ms ease;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ---------- a strip of tape, on some of them ---------- */
+.frag::after {
+  content: "";
+  position: absolute;
+  top: -0.3rem;
+  left: 1.05rem;
+  width: 2.7rem;
+  height: 0.9rem;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(180deg, rgba(233, 226, 208, 0.42), rgba(233, 226, 208, 0.14));
+  border-left: 1px solid rgba(233, 226, 208, 0.28);
+  border-right: 1px solid rgba(233, 226, 208, 0.28);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+  transform: rotate(-2.5deg);
+}
+
+/* ---------- deterministic tilt + tape, per position ---------- */
+.frag:nth-child(3n)   { --rot: 0.4deg; }
+.frag:nth-child(4n)   { --rot: -0.5deg; }
+.frag:nth-child(5n+2) { --rot: 0.24deg; }
+.frag:nth-child(7n+3) { --rot: -0.32deg; }
+
+.frag:nth-child(3n+1)::after,
+.frag:nth-child(5n)::after { opacity: 1; }
+
+/* ---------- the printed head ---------- */
+.frag-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
+  margin: 0 0 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.frag-kind {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 0 0.3rem;
+  color: #6f5c3e;
+  border: 1px solid rgba(111, 92, 62, 0.45);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.frag-key {
+  flex: 0 0 auto;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.frag-label {
+  flex: 1 1 6rem;
+  min-width: 0;
+  color: #34291b;
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-transform: none;
+  overflow-wrap: break-word;
+}
+
+/* ---------- the body of the document ---------- */
+.frag-text {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #2f2718;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+/* ---------- the seal on a filed page ---------- */
+.frag-pin {
+  position: absolute;
+  top: -0.34rem;
+  right: 0.5rem;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1;
+  color: #f4ecd8;
+  background: radial-gradient(circle at 34% 28%, var(--stamp-2), var(--stamp));
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  transform: rotate(9deg);
+}
+
+/* ---------- states ---------- */
+.frag:hover { --lift: -2px; }
+.frag:active { --lift: 0px; }
 .frag:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.frag.is-selected { outline: 2px solid var(--gold); outline-offset: 1px; transform: translateY(-2px); }
-.frag.is-filed { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
 
-.frag-head { display: flex; gap: 0.5rem; align-items: baseline; margin-bottom: 0.35rem; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; }
-.frag-kind { color: #7d6a4c; border: 1px solid rgba(125, 106, 76, 0.5); border-radius: 2px; padding: 0 0.3rem; white-space: nowrap; }
-.frag-key { color: #a08c66; }
-.frag-label { color: #3d3225; letter-spacing: 0; text-transform: none; font-size: 0.74rem; }
-.frag-text { margin: 0; font-size: 0.85rem; line-height: 1.45; color: #33291d; }
-.frag-pin { position: absolute; right: 0.5rem; top: 0.4rem; color: rgba(142, 43, 43, 0.5); font-size: 0.7rem; }
+.frag.is-filed {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.34),
+    0 6px 14px -10px rgba(0, 0, 0, 0.7);
+}
 
-/* kind flavours: a form is not a photograph */
-.frag[data-kind="form"] { background: repeating-linear-gradient(180deg, #ece5d2 0 1.55rem, #e2d8bf 1.55rem 1.62rem); }
-.frag[data-kind="form"] .frag-text { font-family: var(--mono); font-size: 0.78rem; }
-.frag[data-kind="receipt"] { background: linear-gradient(170deg, #f0e9d6, #e0d6bd); border-style: dashed; }
-.frag[data-kind="letter"] { background: linear-gradient(165deg, #efe7d1, #ded3b8); }
-.frag[data-kind="transcript"] .frag-text { font-family: var(--mono); font-size: 0.76rem; }
-.frag[data-kind="photo"] { background: #f4efe0; padding: 0.5rem 0.5rem 1.1rem; }
-.frag[data-kind="photo"]::after { content: "photograph, verso"; position: absolute; bottom: 0.25rem; left: 0.6rem; font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.16em; text-transform: uppercase; color: #9a8b6c; }
-.frag[data-kind="object"] { background: linear-gradient(160deg, #e6dcc6, #d3c6a7); }
-.frag[data-kind="margin"] { background: #e9e0c9; border-left: 3px solid var(--stamp); }
-.frag[data-kind="margin"] .frag-text { font-style: italic; color: #5a2a2a; }
+.frag.is-selected {
+  --lift: -3px;
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 0 0 4px rgba(184, 145, 47, 0.18),
+    0 16px 26px -14px rgba(0, 0, 0, 0.8);
+}
+
+/* ---------- stock: a letter is not a photograph ---------- */
+
+/* letter — laid cream paper with a folded crease */
+.frag[data-kind="letter"] {
+  --stock:
+    linear-gradient(180deg, transparent 61.3%, rgba(80, 60, 32, 0.16) 61.7%,
+      rgba(255, 255, 255, 0.22) 62.1%, transparent 62.7%),
+    linear-gradient(163deg, var(--paper) 0%, var(--paper-2) 80%, var(--paper-3) 100%);
+}
+.frag[data-kind="letter"] .frag-text { color: #2b2317; }
+
+/* form — ruled field lines, typed entries, a rule under the head */
+.frag[data-kind="form"] {
+  --stock:
+    repeating-linear-gradient(180deg, transparent 0 1.5rem,
+      rgba(80, 61, 32, 0.24) 1.5rem 1.54rem),
+    linear-gradient(90deg, transparent 0 27%,
+      rgba(80, 61, 32, 0.15) 27% 27.14%, transparent 27.14%),
+    linear-gradient(163deg, var(--paper) 0%, var(--paper-2) 100%);
+  border-color: rgba(110, 92, 62, 0.6);
+}
+.frag[data-kind="form"] .frag-head {
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(80, 61, 32, 0.35);
+}
+.frag[data-kind="form"] .frag-text {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: -0.01em;
+  color: #3a3020;
+}
+
+/* receipt — a narrow strip of thermal tape, perforated, faded ink */
+.frag[data-kind="receipt"] {
+  align-self: flex-start;
+  width: min(100%, 21rem);
+  --stock: linear-gradient(172deg, #f2ebd7, #e2d8bd);
+  border-color: rgba(120, 106, 72, 0.5);
+  border-bottom: 1px dashed rgba(90, 74, 44, 0.55);
+}
+/* torn top edge: a comb of paper teeth drawn with gradients only */
+.frag[data-kind="receipt"]::after {
+  content: "";
+  top: -0.32rem;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: 0.32rem;
+  opacity: 1;
+  transform: none;
+  border: 0;
+  box-shadow: none;
+  background: repeating-linear-gradient(90deg,
+    #e9e2d0 0 0.42rem, transparent 0.42rem 0.84rem);
+}
+.frag[data-kind="receipt"] .frag-text {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: #453a26;
+}
+
+/* transcript — carbon-copy blue, typed, faintly ruled */
+.frag[data-kind="transcript"] {
+  --stock:
+    repeating-linear-gradient(180deg, transparent 0 1.35rem,
+      rgba(43, 60, 60, 0.13) 1.35rem 1.38rem),
+    linear-gradient(163deg, #e7e9df, #cfd6cd);
+  border-color: rgba(61, 107, 107, 0.4);
+}
+.frag[data-kind="transcript"] .frag-kind { color: var(--sea); border-color: rgba(61, 107, 107, 0.5); }
+.frag[data-kind="transcript"] .frag-text {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: #2b3b3b;
+}
+
+/* photograph — white print stock, the image plate, a caption line */
+.frag[data-kind="photo"] {
+  --stock: linear-gradient(180deg, #f8f3e7, #efe8d7);
+  padding: 0.5rem 0.5rem 1.42rem;
+  border-color: rgba(150, 135, 108, 0.55);
+}
+.frag[data-kind="photo"]::before {
+  content: "";
+  display: block;
+  position: relative;
+  z-index: 0;
+  height: 4.6rem;
+  margin: 0 0 0.55rem;
+  border-radius: 1px;
+  background:
+    radial-gradient(42% 60% at 37% 40%, rgba(226, 212, 182, 0.85), transparent 70%),
+    radial-gradient(30% 38% at 37% 27%, rgba(240, 229, 204, 0.9), transparent 72%),
+    radial-gradient(95% 100% at 82% 96%, rgba(24, 18, 10, 0.9), transparent 68%),
+    linear-gradient(158deg, #6d5c40, #2c2417);
+  box-shadow:
+    inset 0 0 0 1px rgba(50, 38, 20, 0.45),
+    inset 0 10px 20px -14px rgba(0, 0, 0, 0.8);
+}
+.frag[data-kind="photo"] .frag-text {
+  font-style: italic;
+  font-size: 0.78rem;
+  color: #57503f;
+}
+.frag[data-kind="photo"]::after {
+  content: "photograph, verso";
+  position: absolute;
+  left: 0.55rem;
+  right: 0.55rem;
+  bottom: 0.35rem;
+  top: auto;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  transform: none;
+  box-shadow: none;
+  background: none;
+  border-top: 1px solid rgba(80, 61, 32, 0.28);
+  padding-top: 0.22rem;
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: right;
+  color: #96876a;
+}
+
+/* object — a card-backed tag: manila stock, a punched hole, a string's shadow */
+.frag[data-kind="object"] {
+  align-self: flex-start;
+  width: min(100%, 24rem);
+  --stock: linear-gradient(160deg, var(--paper-2), var(--paper-3));
+  --aged:
+    radial-gradient(circle 0.3rem at 0.85rem 50%, rgba(11, 10, 9, 0.96) 0 92%, transparent 100%),
+    radial-gradient(circle 0.44rem at 0.85rem 50%, rgba(255, 255, 255, 0.3), transparent 100%),
+    radial-gradient(135% 115% at 5% 3%, rgba(255, 252, 240, 0.45), transparent 44%),
+    radial-gradient(135% 130% at 99% 107%, rgba(74, 55, 30, 0.32), transparent 58%),
+    repeating-linear-gradient(0deg, rgba(80, 61, 30, 0.05) 0 1px, transparent 1px 3px);
+  border-color: rgba(110, 92, 60, 0.6);
+  border-radius: 12px 3px 3px 3px;
+}
+.frag[data-kind="object"] .frag-head,
+.frag[data-kind="object"] .frag-text { padding-left: 1.4rem; }
+.frag[data-kind="object"] .frag-text {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: #3a3020;
+}
+
+/* margin — a scrap in red ink, the previous Archivist's hand */
+.frag[data-kind="margin"] {
+  align-self: flex-start;
+  width: min(100%, 30rem);
+  --stock: linear-gradient(163deg, #ece3cb, #ddd2b4);
+  border-left: 3px solid var(--stamp);
+  border-radius: 1px 2px 2px 1px;
+}
+.frag[data-kind="margin"] .frag-label {
+  font-style: italic;
+  color: var(--stamp);
+  text-decoration: underline wavy rgba(142, 43, 43, 0.55);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.frag[data-kind="margin"] .frag-text {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #5a2a2a;
+}
+
+/* ---------- the timeline column: keep the same sheet tidy, un-tilted ---------- */
+.slot-body .frag {
+  --rot: 0deg;
+  padding: 0.5rem 0.62rem 0.6rem;
+}
+.slot-body .frag-head { margin-bottom: 0.3rem; }
+.slot-body .frag-text { font-size: 0.82rem; }
+.slot-body .frag[data-kind="receipt"],
+.slot-body .frag[data-kind="object"],
+.slot-body .frag[data-kind="margin"] { width: 100%; }
+
+/* ---------- quiet, for those who asked ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .frag { transition: none; }
+  .frag:hover,
+  .frag.is-selected { --lift: 0px; }
+}
