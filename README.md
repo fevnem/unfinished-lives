@@ -211,7 +211,7 @@ falsehood, names the case's own key and seals the verdict — a case that scores
 
 ## Credits
 
-Written and built by [tri](https://github.com/fevnem). Want to write a case?
+Written and built by (https://github.com/fevnem). Want to write a case?
 See [CONTRIBUTING.md](CONTRIBUTING.md) — it is one file and a linter.
 
 MIT licensed — see [LICENSE](LICENSE). The people in these files are invented. The paperwork
