@@ -26,45 +26,45 @@ export default {
 
   fragments: [
     {
-      id: 'cmeta-f1', kind: 'form', label: 'Personnel form, department',
+      id: 'case-meta-f1', kind: 'form', label: 'Personnel form, department',
       text: 'Post: Registrar. Term: indefinite. Signature of the officer: (a line, drawn very straight, in the hand from the margins). Signature of the department: the same line twice.',
       anchor: '1901',
       note: 'One hand signed both sides of this form. Nobody signs for themselves.'
     },
     {
-      id: 'cmeta-f2', kind: 'margin', label: 'Margin note, file 001-A',
+      id: 'case-meta-f2', kind: 'margin', label: 'Margin note, file 001-A',
       text: 'He is not lying, he is repeating. The street is where the registrar listened. \u2014 in the margin, in a hand that is not the registrar\u2019s',
       anchor: '1919'
     },
     {
-      id: 'cmeta-f3', kind: 'receipt', label: 'Requistion: one measure of ink',
+      id: 'case-meta-f3', kind: 'receipt', label: 'Requistion: one measure of ink',
       text: 'One. And one. And one. Seventeen requisitions in one term, each for a single measure, each signed for by the registrar, each stamped approved by nobody.',
       anchor: '1946',
       note: 'Ink is meant to be spent on the living. She was spending it on something.'
     },
     {
-      id: 'cmeta-f4', kind: 'transcript', label: 'Interview, department, undated',
+      id: 'case-meta-f4', kind: 'transcript', label: 'Interview, department, undated',
       text: 'Q. Whose file is on your desk? A. Mine. Q. Then file it. A. Not while I am still in it.',
       anchor: '1974'
     },
     {
-      id: 'cmeta-f5', kind: 'photo', label: 'Photograph of the desk',
+      id: 'case-meta-f5', kind: 'photo', label: 'Photograph of the desk',
       text: 'The desk. Two hands on the blotter, one of them holding a pen. The other one is already shaded out \u2014 not torn, shaded, carefully, as if the archivist were practising for something.',
       anchor: '1999'
     },
     {
-      id: 'cmeta-f6', kind: 'object', label: 'Numbered brass tag',
+      id: 'case-meta-f6', kind: 'object', label: 'Numbered brass tag',
       text: 'A brass tag, 44, on a short chain. Underneath it, in the drawer, an identical tag stamped 45. It has your number on it and it has been there a long time.',
       anchor: 'Never',
       note: 'The tag is warm. Nothing in this room is warm.'
     },
     {
-      id: 'cmeta-f7', kind: 'letter', label: 'Unsigned instruction to her successor',
+      id: 'case-meta-f7', kind: 'letter', label: 'Unsigned instruction to her successor',
       text: 'You will find my file on the desk on your first morning. Do not read the intake paragraph, there is not one. File the pages, mark what cannot both be true, and then seal a verdict on me. Anything you sign, I will have to live with. That is the whole of it, and it is the only fair trial I could give myself.',
       anchor: 'Never'
     },
     {
-      id: 'cmeta-f8', kind: 'form', label: 'Blank verdict slip, pre-signed',
+      id: 'case-meta-f8', kind: 'form', label: 'Blank verdict slip, pre-signed',
       text: 'A verdict slip with all three boxes already ticked, and the fields for virtue and wound left empty for you. The registrar has ticked Release, Return and Retain in the same steady hand.',
       anchor: 'Never',
       note: 'She is not asking to be released. She is asking not to be the one who signs.'
@@ -72,15 +72,15 @@ export default {
   ],
 
   contradictions: [
-    { a: 'cmeta-f1', b: 'cmeta-f4', reason: 'The personnel form says the registrar was appointed indefinitely; she says she is still inside her own file, which cannot be closed. One of the two is a promise she broke.' },
-    { a: 'cmeta-f6', b: 'cmeta-f8', reason: 'A tag numbered 45 was waiting in the drawer \u2014 and a verdict slip pre-ticked in her hand. She wrote the terms of her own replacement before you ever arrived.' }
+    { a: 'case-meta-f1', b: 'case-meta-f4', reason: 'The personnel form says the registrar was appointed indefinitely; she says she is still inside her own file, which cannot be closed. One of the two is a promise she broke.' },
+    { a: 'case-meta-f6', b: 'case-meta-f8', reason: 'A tag numbered 45 was waiting in the drawer \u2014 and a verdict slip pre-ticked in her hand. She wrote the terms of her own replacement before you ever arrived.' }
   ],
 
   questions: [
-    { id: 'q1', cost: 2, requires: 'cmeta-f2', prompt: 'Why did you write in the margins of other people\u2019s files?', answer: 'Because nobody writes in yours. I read four hundred lives and only ever signed the bottom. The margins were the only pages I was allowed to be a person on.' },
-    { id: 'q2', cost: 2, requires: 'cmeta-f3', prompt: 'What were you buying with all that ink?', answer: 'Time. A file that is not closed does not move on, and a registrar whose file is still open cannot be reassigned. I was buying myself one more morning, at one measure a morning, for seventeen years.' },
-    { id: 'q3', cost: 2, requires: 'cmeta-f7', prompt: 'You could have signed it yourself.', answer: 'I could. But a life signed off by its own hand is not a verdict, it is an excuse. I have read four hundred of those. I did not want to be one.' },
-    { id: 'q4', cost: 1, requires: 'cmeta-f6', prompt: 'Was the tag numbered 45 always there?', answer: 'The drawer is stocked in advance. Somebody upstairs has been expecting you for a long time, Archivist. You were issued to this desk. You were not hired to it.' }
+    { id: 'q1', cost: 2, requires: 'case-meta-f2', prompt: 'Why did you write in the margins of other people\u2019s files?', answer: 'Because nobody writes in yours. I read four hundred lives and only ever signed the bottom. The margins were the only pages I was allowed to be a person on.' },
+    { id: 'q2', cost: 2, requires: 'case-meta-f3', prompt: 'What were you buying with all that ink?', answer: 'Time. A file that is not closed does not move on, and a registrar whose file is still open cannot be reassigned. I was buying myself one more morning, at one measure a morning, for seventeen years.' },
+    { id: 'q3', cost: 2, requires: 'case-meta-f7', prompt: 'You could have signed it yourself.', answer: 'I could. But a life signed off by its own hand is not a verdict, it is an excuse. I have read four hundred of those. I did not want to be one.' },
+    { id: 'q4', cost: 1, requires: 'case-meta-f6', prompt: 'Was the tag numbered 45 always there?', answer: 'The drawer is stocked in advance. Somebody upstairs has been expecting you for a long time, Archivist. You were issued to this desk. You were not hired to it.' }
   ],
 
   key: {

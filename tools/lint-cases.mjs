@@ -13,9 +13,7 @@ const notice = (id, msg) => warns.push(id + ': ' + msg);
 const cases = await loadCases();
 const loaded = new Set(cases.map((c) => c.id));
 
-for (const id of CASE_IDS) {
-  if (!loaded.has(id)) notice(id, 'not written yet (skipped by the registry)');
-}
+const unwritten = CASE_IDS.filter((id) => !loaded.has(id));
 
 const seenTitles = new Map();
 
@@ -115,10 +113,11 @@ console.log('  ARCHIVE — case linter');
 console.log('  ' + '-'.repeat(58));
 for (const c of cases) {
   const sizes = c.fragments.length + ' pages · ' + c.contradictions.length + ' falsehoods · ' + c.questions.length + ' questions · ink ' + c.questions.reduce((s, q) => s + q.cost, 0);
-  console.log('  ' + (c.id + '        ').slice(0, 9) + (c.title + ' '.repeat(46)).slice(0, 46) + sizes);
+  console.log('  ' + c.id.padEnd(11) + ' ' + c.title.slice(0, 44).padEnd(44) + ' ' + sizes);
 }
 console.log('  ' + '-'.repeat(58));
 console.log('  ' + cases.length + ' case(s) loaded · ' + bad + ' error(s) · ' + warns.length + ' note(s)');
+if (unwritten.length) console.log('  ' + unwritten.length + ' not written yet: ' + unwritten.join(' '));
 if (warns.length) { console.log(''); warns.forEach((w) => console.log('  note   ' + w)); }
 if (bad) { console.log(''); errors.forEach((e) => console.log('  ERROR  ' + e)); }
 console.log('');
