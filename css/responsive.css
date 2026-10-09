@@ -1,0 +1,21 @@
+/* Small screens.
+   OWNED BY ONE HAND in round 2 — rewrite completely. Contract: the desk must be usable
+   one-handed on a phone (<=480px) and on a tablet (<=900px). */
+
+@media (max-width: 900px) {
+  .desk-grid, .brief-grid { grid-template-columns: 1fr; }
+  .screen { padding: 2rem 1.1rem 4rem; }
+  .case-head { flex-direction: column; align-items: flex-start; }
+  .case-head-side { align-items: flex-start; }
+  .compare-row { grid-template-columns: 1fr; gap: 0.2rem; }
+  .dossier { grid-template-columns: 1fr; }
+  .dossier dt { padding-top: 0.5rem; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .big-title { font-size: 2.1rem; }
+  .slot { grid-template-columns: 3rem 1fr; }
+  .shelf-row { grid-template-columns: 1.6rem 1fr 4rem; }
+  .shelf-verdict { display: none; }
+}

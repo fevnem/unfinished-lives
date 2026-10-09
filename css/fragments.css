@@ -1,0 +1,41 @@
+/* Fragment cards: the documents themselves.
+   OWNED BY ONE HAND in round 1 — rewrite this file completely if you can do better.
+   Frozen contract: keep every class name below working. */
+
+.frag-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.frag {
+  position: relative;
+  background: linear-gradient(160deg, #ece5d2, #ded4bb);
+  color: #241d14;
+  border: 1px solid #c0b291;
+  border-radius: 2px;
+  padding: 0.6rem 0.75rem 0.7rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.frag:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
+.frag:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.frag.is-selected { outline: 2px solid var(--gold); outline-offset: 1px; transform: translateY(-2px); }
+.frag.is-filed { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+
+.frag-head { display: flex; gap: 0.5rem; align-items: baseline; margin-bottom: 0.35rem; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.frag-kind { color: #7d6a4c; border: 1px solid rgba(125, 106, 76, 0.5); border-radius: 2px; padding: 0 0.3rem; white-space: nowrap; }
+.frag-key { color: #a08c66; }
+.frag-label { color: #3d3225; letter-spacing: 0; text-transform: none; font-size: 0.74rem; }
+.frag-text { margin: 0; font-size: 0.85rem; line-height: 1.45; color: #33291d; }
+.frag-pin { position: absolute; right: 0.5rem; top: 0.4rem; color: rgba(142, 43, 43, 0.5); font-size: 0.7rem; }
+
+/* kind flavours: a form is not a photograph */
+.frag[data-kind="form"] { background: repeating-linear-gradient(180deg, #ece5d2 0 1.55rem, #e2d8bf 1.55rem 1.62rem); }
+.frag[data-kind="form"] .frag-text { font-family: var(--mono); font-size: 0.78rem; }
+.frag[data-kind="receipt"] { background: linear-gradient(170deg, #f0e9d6, #e0d6bd); border-style: dashed; }
+.frag[data-kind="letter"] { background: linear-gradient(165deg, #efe7d1, #ded3b8); }
+.frag[data-kind="transcript"] .frag-text { font-family: var(--mono); font-size: 0.76rem; }
+.frag[data-kind="photo"] { background: #f4efe0; padding: 0.5rem 0.5rem 1.1rem; }
+.frag[data-kind="photo"]::after { content: "photograph, verso"; position: absolute; bottom: 0.25rem; left: 0.6rem; font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.16em; text-transform: uppercase; color: #9a8b6c; }
+.frag[data-kind="object"] { background: linear-gradient(160deg, #e6dcc6, #d3c6a7); }
+.frag[data-kind="margin"] { background: #e9e0c9; border-left: 3px solid var(--stamp); }
+.frag[data-kind="margin"] .frag-text { font-style: italic; color: #5a2a2a; }

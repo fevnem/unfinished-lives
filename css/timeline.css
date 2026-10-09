@@ -1,0 +1,22 @@
+/* Timeline + slots.
+   OWNED BY ONE HAND in round 2 — rewrite completely if you can do better.
+   Frozen contract: .timeline, .slot, .slot-year, .slot-body, .slot-empty must keep working. */
+
+.timeline { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.slot {
+  display: grid;
+  grid-template-columns: 3.6rem 1fr;
+  gap: 0.7rem;
+  border: 1px dashed var(--line);
+  border-radius: 2px;
+  padding: 0.45rem 0.5rem;
+  min-height: 3.1rem;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.slot:hover { border-color: var(--paper-3); background: rgba(233, 226, 208, 0.03); }
+.slot-year { font-family: var(--mono); font-size: 0.8rem; color: var(--gold); letter-spacing: 0.08em; padding-top: 0.35rem; }
+.slot-body { display: flex; flex-direction: column; gap: 0.4rem; }
+.slot-empty { font-family: var(--mono); font-size: 0.7rem; color: rgba(161, 149, 127, 0.4); margin: 0.5rem 0 0; }
