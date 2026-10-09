@@ -5,6 +5,7 @@ import { VERDICTS, VERDICT_GLOSS, rankFor } from '../engine/vocab.js';
 import * as S from '../engine/store.js';
 import { renderDesk, resetDesk } from './desk.js';
 import { renderVerdict } from './verdict.js';
+import { renderShelf } from './shelf.js';
 import { ink } from '../fx/ink.js';
 
 const TITLES = {
@@ -14,6 +15,7 @@ const TITLES = {
   verdict: 'Verdict — The Archive of Unfinished Lives',
   epilogue: 'Sealed — The Archive of Unfinished Lives',
   summary: 'Shelved Files — The Archive of Unfinished Lives',
+  shelf: 'The Shelf — The Archive of Unfinished Lives',
   manual: 'Archive Manual — The Archive of Unfinished Lives'
 };
 
@@ -59,7 +61,7 @@ screens.title = function (ctx) {
     row.appendChild(el('button.btn.primary.big', {
       onclick: function () { confirmRestart = false; ctx.go('brief'); }
     }, 'Resume · file ' + (run.caseIndex + 1) + ' of ' + run.cases.length));
-    row.appendChild(el('button.btn.ghost', { onclick: function () { ctx.go('summary'); } }, 'Shelved files'));
+    row.appendChild(el('button.btn.ghost', { onclick: function () { ctx.go('shelf'); } }, 'The whole shelf'));
   }
   row.appendChild(el('button.btn.ghost', { onclick: function () { ctx.go('manual', { back: 'title' }); } }, 'Archive manual'));
   root.appendChild(row);
@@ -221,10 +223,15 @@ screens.summary = function (ctx) {
     el('span.total-value', { text: total + '/100 · rank ' + rankFor(total).rank })
   ]));
   root.appendChild(el('div.btn-row.center', {}, [
-    el('button.btn', { onclick: function () { ctx.go('title'); } }, 'Return to the desk')
+    el('button.btn', { onclick: function () { ctx.go('shelf'); } }, 'The whole shelf'),
+    el('button.btn.ghost', { onclick: function () { ctx.go('title'); } }, 'Return to the desk')
   ]));
   return root;
 };
+
+/* ---------------- shelf (js/ui/shelf.js) ---------------- */
+
+screens.shelf = function (ctx) { return renderShelf(ctx); };
 
 /* ---------------- manual ---------------- */
 

@@ -11,6 +11,8 @@ Spend your ink carefully, then sign a verdict on somebody you will never meet.
 [![dependencies: none](https://img.shields.io/badge/dependencies-none-e9e2d0?style=flat-square&labelColor=17130e)](#architecture)
 [![build: not required](https://img.shields.io/badge/build-not%20required-e9e2d0?style=flat-square&labelColor=17130e)](#run-it)
 
+<img src="assets/wordmark.svg" alt="The Archive of Unfinished Lives" width="560">
+
 <img src="docs/screens/01-title.png" alt="The title screen: a lamp-lit intake desk" width="820">
 
 </div>
@@ -78,7 +80,45 @@ you), **virtue, wound and verdict**, and **ink left unspent**. Progress saves it
 Every case is one file in `js/content/`, written to a frozen contract, and validated by a linter
 before it can ship. (`case-00` is the tutorial; `case-meta` is the finale.)
 
-<!-- CASES -->
+Thirty-two files: `case-00` teaches the desk, `case-01`–`case-30` are the shelf you work
+through, and `case-meta` is the last envelope in the building. Playing a file perfectly
+scores 100/100 — rank S. **The verdicts are deliberately not listed here: working out
+which one is earned is the game.**
+
+| file | case | era | setting | difficulty | the record |
+|---|---|---|---|---|---|
+| `case-00` | **The Ledger of Small Debts** | 1911–1951 | Baker, later cook | 1/5 | 7 pages · 2 falsehoods |
+| `case-01` | **The Furnace Under Another Name** | 1889–1922 | Glass furnaceman, night hand | 2/5 | 10 pages · 3 falsehoods |
+| `case-02` | **The Woman Who Kept the Book** | 1901–1938 | Filed as none. Kept the harbour wage book, 1908–1919 | 2/5 | 9 pages · 3 falsehoods |
+| `case-03` | **The Names He Made Up** | 1914–1946 | Clerk, registration office | 3/5 | 8 pages · 3 falsehoods |
+| `case-04` | **Eleven Women, One Tremor** | 1923–1961 | Trim-line hand, Kessler Motors; later laundress | 3/5 | 9 pages · 3 falsehoods |
+| `case-05` | **The Cause She Would Not Sign** | 1933–1972 | Nurse, later ward sister, ward 4 | 3/5 | 10 pages · 4 falsehoods |
+| `case-06` | **The Technician With No File** | 1947–1980 | Radio technician, later unnamed caretaker of the transmitter | 4/5 | 10 pages · 3 falsehoods |
+| `case-07` | **The Entry In Another Hand** | 1958–1991 | Able seaman, motor ferry Casablanca–Marseille | 2/5 | 8 pages · 3 falsehoods |
+| `case-08` | **Nine Days of Plates** | 1969–2003 | Cook; eleven years in a restaurant kitchen | 3/5 | 9 pages · 3 falsehoods |
+| `case-09` | **The Survey Dated After the Fall** | 1897–1935 | Slate quarryman, later clerk of returns | 3/5 | 11 pages · 4 falsehoods |
+| `case-10` | **Three Men in One Ledger** | 1905–1944 | Porter; office clerk; linesman, Uganda Railway, Nairobi depot | 3/5 | 9 pages · 3 falsehoods |
+| `case-11` | **Two Hundred and Fourteen Items** | 1912–1950 | Pawnbroker's wife, later pawnbroker, 41 Meath Street | 3/5 | 10 pages · 3 falsehoods |
+| `case-12` | **The Signature of a Dead Schoolmaster** | 1921–1965 | Schoolmistress, the county school at Litton, upper Wharfedale | 4/5 | 10 pages · 4 falsehoods |
+| `case-13` | **One Digit Wrong** | 1928–1972 | Seamstress, Brás; later laundress | 3/5 | 9 pages · 3 falsehoods |
+| `case-14` | **The Dress List for a Lost Film** | 1934–1978 | Costume maker, later wardrobe assistant | 3/5 | 9 pages · 3 falsehoods |
+| `case-15` | **Fourteen Years in Her Mother's Hand** | 1940–1985 | Cloth trader, stall 212, Balogun Market | 4/5 | 8 pages · 3 falsehoods |
+| `case-16` | **The Page Cut Out of the File** | 1955–1999 | Welder, later checker of welds; Cairnbrae yard, Govan | 4/5 | 9 pages · 3 falsehoods |
+| `case-17` | **The Man He Pulled Out** | 1871–1908 | Hog floor; killer, later hasher man, No. 4 hasher | 3/5 | 10 pages · 3 falsehoods |
+| `case-18` | **The Register That Burned** | 1883–1919 | Parish midwife, Sörby | 3/5 | 9 pages · 3 falsehoods |
+| `case-19` | **What He Burned to Stay Alive** | 1890–1925 | Mail carrier, Dawson–Forty Mile trail; later store clerk, Dawson | 3/5 | 10 pages · 3 falsehoods |
+| `case-20` | **The Stoppage Entered as Sabotage** | 1900–1936 | Loom hand, shed C, Nilkanta Jute Mills | 4/5 | 9 pages · 3 falsehoods |
+| `case-21` | **The Confession He Dictated** | 1918–1952 | Seamstress, Bragança, Rua da Atalaia; later laundress | 3/5 | 8 pages · 3 falsehoods |
+| `case-22` | **The Disease Without a Name Yet** | 1929–1968 | Physician and surgeon; camp doctor, later a practice without a licence | 4/5 | 9 pages · 3 falsehoods |
+| `case-23` | **Four Reports and No Action** | 1940–1979 | Signalman, Abidjan–Niger railway; later yard gatekeeper | 3/5 | 8 pages · 3 falsehoods |
+| `case-24` | **The Measurements She Copied** | 1950–1988 | Dye-house hand, later sample-room assistant | 4/5 | 10 pages · 3 falsehoods |
+| `case-25` | **The Longer Road That Night** | 1962–1999 | Ambulance officer, night driver | 3/5 | 9 pages · 3 falsehoods |
+| `case-26` | **The Pages That Were Never Scanned** | 1974–2011 | Scanning operator, grade 3, later supervisor, Site 2 | 4/5 | 10 pages · 3 falsehoods |
+| `case-27` | **Sixty-One Plates Nobody Paid For** | 1868–1905 | Printer's hand and counter girl, photographic studio | 3/5 | 9 pages · 3 falsehoods |
+| `case-28` | **The Shift That Wasn't There** | 1908–1945 | Barretero (driller), capataz of cuadrilla 7 | 4/5 | 10 pages · 3 falsehoods |
+| `case-29` | **The Ship That Did Not Sail** | 1930–1971 | Assistant keeper, then keeper, Havbjerg light | 4/5 | 10 pages · 3 falsehoods |
+| `case-30` | **The Wardrobe Nobody Collected** | 1968–2005 | Laundress, hospital laundry | 2/5 | 10 pages · 3 falsehoods |
+| `case-meta` | **The Forty-Fourth Archivist** | Unrecorded | Registrar, Department of Unfinished Lives | 5/5 | 8 pages · 2 falsehoods |
 
 ## Architecture
 

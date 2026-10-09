@@ -210,6 +210,20 @@ if (FLOW === 'all' || FLOW === 'epilogue') { await cdp.shot(path.join(OUT, '05-e
 const noise = cdp.logs.filter((l) => l.level === 'exception' || l.level === 'error');
 check('no uncaught page errors', noise.length === 0, noise.map((n) => n.text).join(' | ').slice(0, 300));
 
+// --- the shelf index ---
+const shelf = await cdp.eval(`(() => {
+  const { ctx } = window.ARCHIVE;
+  ctx.go('shelf');
+  const rows = document.querySelectorAll('.shelf-row').length;
+  const take = [...document.querySelectorAll('button')].filter(b => /take this file/i.test(b.textContent)).length;
+  return { rows, take, cases: ctx.cases.length, title: document.title };
+})()`);
+await sleep(400);
+check('the shelf lists every file', shelf.rows === shelf.cases, 'rows=' + shelf.rows + ' cases=' + shelf.cases);
+check('unsealed files offer a way back in', shelf.take > 0, 'take buttons=' + shelf.take);
+if (FLOW === 'all' || FLOW === 'shelf') { await cdp.shot(path.join(OUT, '06-shelf.png')); console.log('  shot ' + path.join(OUT, '06-shelf.png')); }
+if (FLOW === 'shelf') { await finish(0); }
+
 await finish(problems.length);
 
 async function finish(code) {
