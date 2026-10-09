@@ -6,10 +6,37 @@ import { KINDS, INK_PER_CASE, VERDICTS } from '../engine/vocab.js';
 import * as S from '../engine/store.js';
 import { ink } from '../fx/ink.js';
 
-let sel = null;        // {type:'pile'|'placed', id}
+let sel = null;         // {type:'pile'|'placed', id} — the page the player holds
 let markPending = null; // fragId waiting for its contradiction partner
+let dragging = null;    // fragId under the pointer mid-drag (HTML5 enhancement only)
 
-export function resetDesk() { sel = null; markPending = null; }
+// Drop highlight. The class is ours to name but another hand styles it:
+//   .slot.is-drop-target, .frag-list.is-drop-target  ->  "a page lands here"
+// It is deliberately not required for the feature to work — until it is styled,
+// the slot still reacts to the pointer via its own :hover rule and the carried
+// card keeps the existing .is-selected lift, so the gesture stays legible.
+const DROP_CLASS = 'is-drop-target';
+
+function clearDropTargets() {
+  document.querySelectorAll('.' + DROP_CLASS).forEach(function (n) {
+    n.classList.remove(DROP_CLASS);
+  });
+}
+
+// Which page is being dragged? Our own state first (every drag starts in this
+// page), then the transfer payload for anything handed to us from outside.
+function dragId(e) {
+  if (dragging) return dragging;
+  try { return e.dataTransfer.getData('text/plain') || null; } catch (err) { return null; }
+}
+
+function isFragDrag(e) {
+  if (dragging) return true;
+  const t = e.dataTransfer && e.dataTransfer.types;
+  return !!t && Array.prototype.indexOf.call(t, 'text/plain') !== -1;
+}
+
+export function resetDesk() { sel = null; markPending = null; dragging = null; }
 
 export function renderDesk(ctx) {
   const c = ctx.caseDef;
@@ -18,6 +45,7 @@ export function renderDesk(ctx) {
   c.fragments.forEach(function (f) { byId[f.id] = f; });
 
   const root = el('section.screen.screen-desk', { dataset: { case: c.id } });
+  dragging = null; // a fresh render never carries a drag from the last one
 
   /* ---------- head ---------- */
   const head = el('header.case-head', {}, [
@@ -49,6 +77,29 @@ export function renderDesk(ctx) {
     pileList.appendChild(el('p.empty', { text: 'The pile is empty. Everything is filed.' }));
   }
   pile.appendChild(pileList);
+  // the pile is a drop zone too: a filed page dragged here is set down again
+  pile.addEventListener('dragover', function (e) {
+    if (!isFragDrag(e)) return;
+    e.preventDefault();
+    try { e.dataTransfer.dropEffect = 'move'; } catch (err) { /* ignore */ }
+    clearDropTargets();
+    pileList.classList.add(DROP_CLASS);
+  });
+  pile.addEventListener('dragleave', function (e) {
+    if (e.relatedTarget && pile.contains(e.relatedTarget)) return;
+    pileList.classList.remove(DROP_CLASS);
+  });
+  pile.addEventListener('drop', function (e) {
+    e.preventDefault();
+    const id = dragId(e);
+    dragging = null;
+    clearDropTargets();
+    if (!id || !run.current.placed[id]) return; // nothing was filed: no state to change
+    S.unplace(run, id);
+    if (sel && sel.id === id) sel = null;
+    if (markPending === id) markPending = null;
+    commit(ctx);
+  });
 
   /* ---------- timeline ---------- */
   const placedCount = Object.keys(run.current.placed).length;
@@ -70,6 +121,28 @@ export function renderDesk(ctx) {
       if (run.current.placed[f.id] === slot) body.appendChild(fragCard(f, null, ctx, 'placed'));
     });
     if (!body.childNodes.length) body.appendChild(el('p.slot-empty', { text: '—' }));
+    // drop a held page into this year — files it, or re-files a page already here
+    box.addEventListener('dragover', function (e) {
+      if (!isFragDrag(e)) return;
+      e.preventDefault();
+      try { e.dataTransfer.dropEffect = 'move'; } catch (err) { /* ignore */ }
+      clearDropTargets();
+      box.classList.add(DROP_CLASS);
+    });
+    box.addEventListener('dragleave', function (e) {
+      if (e.relatedTarget && box.contains(e.relatedTarget)) return;
+      box.classList.remove(DROP_CLASS);
+    });
+    box.addEventListener('drop', function (e) {
+      e.preventDefault();
+      const id = dragId(e);
+      dragging = null;
+      box.classList.remove(DROP_CLASS);
+      if (!id || run.current.placed[id] === slot) return; // nothing new to file
+      S.place(run, id, slot);
+      if (sel && sel.id === id) sel = null;
+      commit(ctx);
+    });
     tlList.appendChild(box);
   });
   tl.appendChild(tlList);
@@ -100,6 +173,8 @@ export function renderDesk(ctx) {
   ]);
 
   root.appendChild(head);
+  const status = statusBar(ctx, byId);
+  if (status) root.appendChild(status);
   root.appendChild(el('div.desk-grid', {}, [pile, tl, file]));
   root.appendChild(foot);
 
@@ -121,6 +196,36 @@ export function renderDesk(ctx) {
 function commit(ctx) { ctx.save(); ctx.render('desk'); }
 
 /* ---------- pieces ---------- */
+
+// The one honest place that says what is in your hand and whose turn it is,
+// sitting above the grid so a marking in progress can never be lost off-screen.
+function statusBar(ctx, byId) {
+  if (markPending) {
+    const a = byId[markPending];
+    return el('div.desk-status.is-marking', { role: 'status', 'aria-live': 'polite' }, [
+      el('p.status-text', {}, [
+        'Marking ',
+        el('strong.status-label', { text: a ? a.label : markPending }),
+        ' as false \u2014 now choose the page it contradicts.'
+      ]),
+      el('button.btn.tiny.ghost', {
+        onclick: function () { markPending = null; commit(ctx); }
+      }, 'Cancel marking')
+    ]);
+  }
+  if (sel) {
+    const f = byId[sel.id];
+    if (f) {
+      const held = sel.type === 'pile'
+        ? 'Holding \u201c' + f.label + '\u201d from the pile \u2014 click a year to file it, or press Esc to set it down.'
+        : 'Holding \u201c' + f.label + '\u201d from the record \u2014 drag it to another year, back to the pile, or mark it as false.';
+      return el('div.desk-status.is-holding', { role: 'status', 'aria-live': 'polite' }, [
+        el('p.status-text', { text: held })
+      ]);
+    }
+  }
+  return null;
+}
 
 function fragCard(f, index, ctx, where) {
   const run = ctx.run;
@@ -145,11 +250,31 @@ function fragCard(f, index, ctx, where) {
     el('header.frag-head', {}, [
       el('span.frag-kind', { text: KINDS[f.kind] || f.kind }),
       index !== null && index !== undefined ? el('span.frag-key', { text: String(index + 1) }) : null,
-      el('span.frag-label', { text: f.label })
+      el('span.frag-label', { text: f.label }),
+      selected && where === 'pile' ? el('span.frag-hold', { text: 'in hand' }) : null
     ]),
     el('p.frag-text', { text: f.text })
   ]);
   if (where === 'placed') node.appendChild(el('span.frag-pin', { text: '\u2014' }));
+
+  // Drag is an enhancement laid on top of click/keyboard, never a replacement:
+  // clicking a card, pressing 1-9 and Esc all behave exactly as before.
+  node.setAttribute('draggable', 'true');
+  node.addEventListener('dragstart', function (e) {
+    dragging = f.id;
+    try {
+      e.dataTransfer.setData('text/plain', f.id);
+      e.dataTransfer.effectAllowed = 'move';
+    } catch (err) { /* ignore */ }
+    node.classList.add('is-dragging');
+    node.classList.add('is-selected'); // existing-class fallback while carried
+  });
+  node.addEventListener('dragend', function () {
+    dragging = null;
+    node.classList.remove('is-dragging');
+    if (!(sel && sel.id === f.id)) node.classList.remove('is-selected');
+    clearDropTargets();
+  });
   return node;
 }
 
@@ -199,6 +324,12 @@ function inspector(ctx, byId) {
         commit(ctx);
       }
     }, markPending === f.id ? 'Now pick the contradicting page' : 'Mark as false'));
+    // an explicit way out of the marking flow, right where it started
+    if (markPending === f.id) {
+      row.appendChild(el('button.btn.tiny.ghost', {
+        onclick: function () { markPending = null; commit(ctx); }
+      }, 'Cancel'));
+    }
     box.appendChild(row);
     box.appendChild(el('p.insp-hint', { text: 'Mark two pages as false when the record cannot be true of itself.' }));
   }
@@ -242,6 +373,10 @@ function contradictionPane(ctx, byId) {
   const run = ctx.run;
   const box = el('div.marks', {}, [el('h3', {}, 'Falsehoods marked')]);
   const marked = run.current.marked;
+  if (markPending) {
+    // mirrors the top status bar so the flow reads the same wherever you look
+    box.appendChild(el('p.mark-wait', { text: 'Waiting for the contradicting page\u2026' }));
+  }
   if (!marked.length) {
     box.appendChild(el('p.empty', { text: 'None marked. The registrar will not remind you.' }));
     return box;

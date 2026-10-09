@@ -3,19 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- The shell is a dark room: declare it before any CSS so the browser paints the page
+     background, native scrollbars and form controls dark instead of flashing white. -->
+<meta name="color-scheme" content="dark">
+<!-- Mobile browser chrome tint. #0b0a09 is the game's dark ground (--void in base.css). -->
+<meta name="theme-color" content="#0b0a09">
+
 <title>The Archive of Unfinished Lives</title>
 <meta name="description" content="A bureaucratic afterlife. Reconstruct the lives the dead left in fragments, then judge them.">
+
+<!-- Open Graph for link previews. og:url is intentionally omitted: there is no canonical
+     host we can verify from the repo, and guessing one would be a lie in the metadata.
+     The image is the repo's own social-preview card, a local relative URL for the same
+     reason — 1280x640 (1.91:1), the size Open Graph and Twitter large cards expect. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Archive of Unfinished Lives">
+<meta property="og:description" content="A bureaucratic afterlife. Reconstruct the lives the dead left in fragments, then judge them.">
+<meta property="og:image" content="assets/social-preview.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="The Archive of Unfinished Lives: a lamp-lit intake desk in the Department of Unfinished Lives.">
+
+<!-- Twitter/X card. summary_large_image suits the wide preview card. -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Archive of Unfinished Lives">
+<meta name="twitter:description" content="A bureaucratic afterlife. Reconstruct the lives the dead left in fragments, then judge them.">
+<meta name="twitter:image" content="assets/social-preview.png">
+<meta name="twitter:image:alt" content="The Archive of Unfinished Lives: a lamp-lit intake desk in the Department of Unfinished Lives.">
+
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<!-- Home-screen icon. favicon.svg is the only local icon asset; SVG scales to any size,
+     so the type and sizes below describe it honestly rather than implying a raster PNG. -->
+<link rel="apple-touch-icon" href="assets/favicon.svg" type="image/svg+xml" sizes="any">
+
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/fragments.css">
 <link rel="stylesheet" href="css/timeline.css">
 <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
+<!-- #lamp draws the room's light (pure CSS gradients); hidden from assistive tech. -->
 <div id="lamp" aria-hidden="true"></div>
+<!-- The whole game mounts here. Empty in the source: every screen is rendered by js/main.js. -->
 <main id="app" role="main" aria-live="polite"></main>
 <noscript>
-  <p class="noscript">The Archive requires JavaScript. The dead are patient; the forms are not.</p>
+  <p class="noscript">The Archive files everything as JavaScript: the case files, the record and
+  the questions are loaded as ES modules, so without scripting there is nothing here to read.
+  Enable JavaScript — or open this page from a static server rather than straight off the disk.</p>
 </noscript>
 <script type="module" src="js/main.js"></script>
 </body>
