@@ -171,7 +171,8 @@ falsehood, names the case's own key and seals the verdict — a case that scores
 
 ## Credits
 
-Written and built by [Rakib Hasan](https://github.com/fevnem).
+Written and built by [Rakib Hasan](https://github.com/fevnem). Want to write a case?
+See [CONTRIBUTING.md](CONTRIBUTING.md) — it is one file and a linter.
 
 MIT licensed — see [LICENSE](LICENSE). The people in these files are invented. The paperwork
 is not.
