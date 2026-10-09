@@ -109,6 +109,7 @@ js/
     case-meta.js        the finale
 tools/
   lint-cases.mjs        validates every case against the contract
+  verify-cases.mjs      plays every case perfectly in Chromium; asserts 100/100
   screens.mjs           drives a real Chromium over CDP: full playthrough + screenshots
 assets/
   favicon.svg
@@ -157,13 +158,16 @@ fragment — the previous Archivist's hand, hinting at the meta-arc without expl
 ## Development
 
 ```bash
-node tools/lint-cases.mjs          # validate every case file against the contract
-node tools/screens.mjs             # drive the real game in headless Chromium (12 checks) + screenshots
-node tools/screens.mjs --flow desk # just the desk screen
+node tools/lint-cases.mjs             # validate every case file against the contract
+node tools/verify-cases.mjs           # play EVERY case perfectly in Chromium; must score 100/100
+node tools/screens.mjs                # drive the real game through a full session (12 checks) + screenshots
+node tools/screens.mjs --flow desk    # just the desk screen
 ```
 
-`screens.mjs` talks raw CDP to a local Chromium using Node's built-in `WebSocket` — no test
-framework, no Puppeteer, no dependencies. It fails on any uncaught page error.
+`verify-cases.mjs` is the strict one: it files every page at its true anchor, marks every real
+falsehood, names the case's own key and seals the verdict — a case that scores anything but
+100 is contradicting itself. `screens.mjs` talks raw CDP to a local Chromium using Node's built-in
+`WebSocket` — no test framework, no Puppeteer, no dependencies. It fails on any uncaught page error.
 
 ## Credits
 
