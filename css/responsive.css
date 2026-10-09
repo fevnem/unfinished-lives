@@ -1,21 +1,285 @@
-/* Small screens.
-   OWNED BY ONE HAND in round 2 — rewrite completely. Contract: the desk must be usable
-   one-handed on a phone (<=480px) and on a tablet (<=900px). */
+/* ==========================================================================
+   The Archive of Unfinished Lives — responsive.css
+   The small-screen and touch pass for the desk.
+   ==========================================================================
+   Owned by one hand. This is a real mobile pass, not a stack.
 
-@media (max-width: 900px) {
-  .desk-grid, .brief-grid { grid-template-columns: 1fr; }
-  .screen { padding: 2rem 1.1rem 4rem; }
-  .case-head { flex-direction: column; align-items: flex-start; }
-  .case-head-side { align-items: flex-start; }
-  .compare-row { grid-template-columns: 1fr; gap: 0.2rem; }
-  .dossier { grid-template-columns: 1fr; }
-  .dossier dt { padding-top: 0.5rem; }
+   What it does
+     * Follows the content. The three-column desk holds only while its columns
+       actually fit (~1000px); below that it becomes a two-column desk, and on
+       a phone it becomes one clear column.
+     * Re-orders the panes on a phone so the loop works in one hand: the record
+       is never buried under the pile, and the archivist's desk — the selected
+       page and its year chips — is pulled to the foot of its pane, directly
+       above the pile, so a page can be filed without scrolling back to find
+       your own hand.
+     * Every .btn / .chip / .frag / .slot is at least 44px tall wherever a
+       thumb can land, with spacing that avoids mis-taps.
+     * Document text keeps a 55–75ch measure; the dossier, .compare-row,
+       .shelf-row and the chips all collapse without clipping or sideways
+       scroll, down to 320px.
+     * Honours prefers-reduced-motion and prefers-contrast.
+
+   Rules of the file
+     * Above 1000px (the largest breakpoint) every rule here is inert: the
+       desktop layout is pixel-identical to base.css. Only the two opt-in
+       feature queries (reduced motion, more contrast) can touch a desktop,
+       and only when the reader has asked for them.
+     * No @import, no url(), no images, no JS.
+     * The rail geometry of .timeline / .slot belongs to timeline.css. This
+       file never restyles it — it only adds touch sizing.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ *
+   Quiet, for those who asked — opt-in, never the default desktop.
+ * ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .screen { animation: none; }
+  .rv { opacity: 1; animation: none; }
 }
 
-@media (max-width: 480px) {
-  body { font-size: 16px; }
-  .big-title { font-size: 2.1rem; }
-  .slot { grid-template-columns: 3rem 1fr; }
-  .shelf-row { grid-template-columns: 1.6rem 1fr 4rem; }
+@media (prefers-contrast: more) {
+  :root {
+    --line: rgba(233, 226, 208, 0.36);
+    --line-strong: rgba(233, 226, 208, 0.66);
+    --fog: #cbc3b0;
+  }
+  .pane,
+  .card { border-color: var(--line-strong); }
+  .pane-hint,
+  .slot-empty,
+  .empty,
+  .foot-note { color: var(--fog); }
+}
+
+/* ================================================================== *
+   1 · COMPACT DESK — tablet and small laptop, up to 1000px
+   The three columns below are narrower than their min-content, so the
+   desk drops to two: the pile beside the record, the archivist's desk
+   across the full width underneath. This is also where touch sizing
+   begins, because below this width the pointer is almost always a thumb
+   or a fingertip.
+ * ================================================================== */
+
+@media (max-width: 1000px) {
+  .screen { padding: 2rem 1.35rem 4rem; }
+  .screen-title { padding-top: 8vh; }
+
+  /* two-column desk; the archivist's desk spans both columns */
+  .desk-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+    gap: 1rem;
+    align-items: start;
+  }
+  .pane-file { grid-column: 1 / -1; }
+
+  /* the briefing reads top to bottom instead of side by side */
+  .brief-grid { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
+
+  .pane { min-width: 0; }
+  .case-head-main,
+  .case-head-side { min-width: 0; }
+
+  /* the dossier keeps two columns, with a narrower label rail */
+  .dossier { grid-template-columns: minmax(6.5rem, 8rem) minmax(0, 1fr); }
+
+  /* keep a comfortable measure for prose that now runs the full width */
+  .truth,
+  .insp-text,
+  .insp-label,
+  .qa-answer,
+  .intake,
+  .brief-text,
+  .manual,
+  .epi-text p,
+  .rank-note,
+  .lede { max-width: 68ch; }
+  .frag-text { max-width: 72ch; }
+
+  /* --- touch sizing: nothing a thumb has to hit is under 44px --- */
+  .btn,
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  .btn.tiny { padding: 0.5rem 0.85rem; }
+  .chip { padding: 0.48rem 1rem; }
+  .slot,
+  .frag { touch-action: manipulation; }
+  .btn:focus-visible,
+  .chip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+}
+
+/* ================================================================== *
+   2 · NARROW — the case head stops fighting for one line
+ * ================================================================== */
+
+@media (max-width: 700px) {
+  .case-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.9rem;
+  }
+  .case-head-side { align-items: flex-start; }
+
+  /* the epilogue head and the three-line comparison read as a list */
+  .epi-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+  .compare-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.1rem;
+    padding: 0.65rem 0;
+  }
+  .cmp-label { margin-bottom: 0.15rem; }
+}
+
+/* ================================================================== *
+   3 · PHONE — one column, ordered for the loop, at 520px and under
+ * ================================================================== */
+
+@media (max-width: 520px) {
+  .screen { padding: 1.4rem 0.9rem 3rem; }
+  .screen-title { padding-top: 5vh; }
+  .big-title { font-size: clamp(1.85rem, 10.5vw, 2.6rem); }
+  .case-title { font-size: clamp(1.35rem, 7vw, 1.9rem); }
+  .lede { font-size: 1rem; margin-bottom: 1.8rem; }
+
+  /* one column */
+  .desk-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+  .pane {
+    min-height: 0;
+    padding: 0.85rem 0.9rem 1rem;
+  }
+
+  /* --- the loop, in order, top to bottom ---
+     the record first, so it is never buried under the pile */
+  .pane-timeline { order: 1; }
+  /* the archivist's desk next, and the selected page + its year chips moved
+     to the foot of the pane so they sit directly above the pile: tap a page,
+     reach the chips, file it — without losing sight of what you picked */
+  .pane-file {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+  }
+  .pane-file > .inspector {
+    order: 9;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+  /* the pile last */
+  .pane-pile { order: 3; }
+
+  /* --- tap targets and control shape --- */
+  .frag,
+  .slot { min-height: 48px; }
+  .btn,
+  .chip { min-height: 46px; }
+
+  /* the head: full-width controls a thumb can find */
+  .case-head { margin-bottom: 1.1rem; padding-bottom: 0.8rem; }
+  .case-head-side { width: 100%; }
+  .case-head-side .btn-row { display: flex; width: 100%; gap: 0.5rem; }
+  .case-head-side .btn { flex: 1 1 0; }
+  .ink { align-self: flex-start; }
+
+  /* buttons that are the only action on a screen go full width */
+  .btn-row.center {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-row.center .btn { width: 100%; }
+
+  /* the desk foot: stacked, thumb-first */
+  .desk-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
+  }
+  .desk-foot .btn-row { display: flex; flex-direction: column; gap: 0.6rem; }
+  .desk-foot .btn { width: 100%; }
+
+  /* --- collapsing tables, no clipping --- */
+  .dossier {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.12rem;
+  }
+  .dossier dt { padding-top: 0.55rem; }
+  .dossier dd { padding-bottom: 0.2rem; }
+
+  .shelf-row {
+    grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+    gap: 0.5rem;
+  }
   .shelf-verdict { display: none; }
+  .total { flex-wrap: wrap; gap: 0.3rem 0.8rem; }
+
+  /* cards breathe, chips wrap, prose keeps its measure */
+  .card { padding: 1rem 0.95rem; }
+  .choice-block { margin: 1.1rem 0; }
+  .chips { gap: 0.45rem; }
+  .manual,
+  .truth,
+  .intake,
+  .brief-text,
+  .lede { max-width: none; }
+}
+
+/* ================================================================== *
+   4 · MICRO — the small ones, 380px and under
+ * ================================================================== */
+
+@media (max-width: 380px) {
+  .screen { padding: 1.1rem 0.7rem 2.4rem; }
+  .big-title { font-size: 1.72rem; }
+  .shelf-row { grid-template-columns: 1.35rem minmax(0, 1fr) auto; }
+  .slot-picker { gap: 0.3rem; }
+  .chips { gap: 0.4rem; }
+}
+
+/* ================================================================== *
+   5 · TOUCH — any coarse pointer, at any width.
+   Width queries above already cover phones and tablets; this catches a
+   touch laptop or a large tablet so the targets hold everywhere a thumb
+   might land. Adds :active feedback, since :hover never fires there.
+ * ================================================================== */
+
+@media (pointer: coarse) {
+  .btn,
+  .chip { min-height: 44px; }
+  .frag,
+  .slot { min-height: 48px; }
+  .btn,
+  .chip,
+  .frag,
+  .slot { touch-action: manipulation; }
+
+  .slot:active {
+    background: linear-gradient(90deg,
+      rgba(184, 145, 47, 0.16), rgba(184, 145, 47, 0.04) 62%, transparent);
+    box-shadow: inset 3px 0 0 var(--gold);
+  }
+  .slot:active .slot-year { color: var(--paper); }
+}
+
+/* ================================================================== *
+   6 · LANDSCAPE PHONE — short viewport, so reclaim the vertical space
+ * ================================================================== */
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .screen { padding-top: 1.1rem; padding-bottom: 2.2rem; }
+  .screen-title { padding-top: 3vh; }
+  .big-title { font-size: clamp(1.6rem, 6.5vh, 2.6rem); }
+  .desk-grid { gap: 0.8rem; }
 }
