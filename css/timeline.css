@@ -1,22 +1,191 @@
-/* Timeline + slots.
-   OWNED BY ONE HAND in round 2 — rewrite completely if you can do better.
-   Frozen contract: .timeline, .slot, .slot-year, .slot-body, .slot-empty must keep working. */
+/* ==========================================================================
+   The Archive of Unfinished Lives — the record: a filing rail.
+   ==========================================================================
+   The middle pane is a ledger column, not a list of boxes. One continuous
+   hairline ("the rule") runs down the year column; each year is pinned to it
+   with a graduation tick and a small diamond pinhead; the filed cards hang to
+   the right of the rule. A year with nothing filed recedes to a hollow socket.
+   The row under the pointer reads as an action, because clicking it files the
+   selected page into that year.
 
-.timeline { display: flex; flex-direction: column; gap: 0.5rem; }
+   FROZEN CONTRACT — never rename, never unstyle:
+     .timeline, .slot, .slot-year, .slot-body, .slot-empty,
+     and the [data-slot="YEAR"] attribute desk.js sets on every slot.
 
-.slot {
-  display: grid;
-  grid-template-columns: 3.6rem 1fr;
-  gap: 0.7rem;
-  border: 1px dashed var(--line);
-  border-radius: 2px;
-  padding: 0.45rem 0.5rem;
-  min-height: 3.1rem;
-  cursor: pointer;
-  transition: border-color 120ms ease, background 120ms ease;
+   Owned by one hand. Palette and type come from base.css; the paper stock of
+   the cards themselves lives in fragments.css and is framed here, not
+   restyled. Offline: no @import, no url(), no images, no JS. Standard
+   properties only, everything degrades; transitions <= 130ms; honours
+   prefers-reduced-motion. Static gradients only — no filter/blur, no heavy
+   shadow per card, so ~9 slots of ~40 cards stay cheap.
+   ========================================================================== */
+
+.timeline {
+  /* rail geometry — the single source of truth for the rule, ticks and pins */
+  --rail-col: 3.2rem;                                     /* year column width */
+  --rail-gap: 0.85rem;                                    /* year -> cards     */
+  --rail-x: calc(var(--rail-col) + var(--rail-gap) / 2);  /* the rule's x      */
+  --rail-y: 1.1rem;                                       /* the year's line   */
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.1rem 0 0.5rem;
 }
 
-.slot:hover { border-color: var(--paper-3); background: rgba(233, 226, 208, 0.03); }
-.slot-year { font-family: var(--mono); font-size: 0.8rem; color: var(--gold); letter-spacing: 0.08em; padding-top: 0.35rem; }
-.slot-body { display: flex; flex-direction: column; gap: 0.4rem; }
-.slot-empty { font-family: var(--mono); font-size: 0.7rem; color: rgba(161, 149, 127, 0.4); margin: 0.5rem 0 0; }
+/* ---------- the rule: one continuous hairline, faded at both ends ---------- */
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 0.2rem;
+  bottom: 0.2rem;
+  left: var(--rail-x);
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent, var(--line) 0.9rem,
+    var(--line) calc(100% - 0.9rem), transparent);
+  pointer-events: none;
+}
+
+/* ---------- a year hung on the rail ---------- */
+
+.slot {
+  position: relative;
+  display: grid;
+  /* minmax(0, 1fr) — the card column may always shrink; nothing overflows.   */
+  grid-template-columns: var(--rail-col) minmax(0, 1fr);
+  column-gap: var(--rail-gap);
+  align-items: start;
+  min-width: 0;
+  padding: 0 0 0.45rem;
+  border-bottom: 1px dotted rgba(233, 226, 208, 0.07);   /* faint ledger rule */
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 130ms ease, box-shadow 130ms ease;
+}
+.slot:last-child { border-bottom: 0; }
+
+/* the graduation tick: year column -> cards */
+.slot::before {
+  content: "";
+  position: absolute;
+  top: var(--rail-y);
+  left: var(--rail-col);
+  width: var(--rail-gap);
+  height: 1px;
+  margin-top: -0.5px;
+  background: var(--line);
+  transition: background 130ms ease;
+}
+
+/* the pinhead: a small diamond seated on the rule */
+.slot::after {
+  content: "";
+  position: absolute;
+  top: var(--rail-y);
+  left: var(--rail-x);
+  width: 0.5rem;
+  height: 0.5rem;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: var(--paper-3);
+  opacity: 0.5;
+  transition: background 130ms ease, opacity 130ms ease;
+}
+
+.slot::before,
+.slot::after { pointer-events: none; }
+
+/* the year: fixed, legible, never wrapped, seated beside its pin */
+.slot-year {
+  grid-column: 1;
+  align-self: start;
+  text-align: right;
+  padding-top: 0.4rem;              /* padding-top + line-height/2 == --rail-y  */
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  line-height: 1.4rem;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--gold);
+  white-space: nowrap;
+  transition: color 130ms ease;
+}
+
+/* the cards hang here; an overfull year simply stacks and grows the row */
+.slot-body {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* what a year with nothing filed shows */
+.slot-empty {
+  margin: 0;
+  padding-top: 0.52rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: rgba(161, 149, 127, 0.38);
+  transition: color 130ms ease;
+}
+
+/* ---------- an empty year recedes (progressive: :has; degrades cleanly) --- */
+
+.slot:has(.slot-empty) .slot-year { color: rgba(184, 145, 47, 0.4); }
+.slot:has(.slot-empty)::before { opacity: 0.45; }
+.slot:has(.slot-empty)::after {
+  background: transparent;
+  opacity: 1;
+  box-shadow: inset 0 0 0 1px var(--line-strong);          /* a hollow socket */
+}
+
+/* ---------- the row under the pointer is an action ---------- */
+
+.slot:hover {
+  background: linear-gradient(90deg,
+    rgba(184, 145, 47, 0.13), rgba(184, 145, 47, 0.03) 62%, transparent);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+.slot:hover .slot-year { color: var(--paper); }
+.slot:hover .slot-empty { color: var(--paper-2); }
+.slot:hover::before { background: var(--gold); }
+.slot:hover::after { background: var(--gold); opacity: 1; }
+
+/* hover beats the recede, for an empty year under the pointer */
+.slot:has(.slot-empty):hover::before { opacity: 1; }
+.slot:has(.slot-empty):hover::after {
+  background: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+/* ---------- narrow panes ---------- */
+
+@media (max-width: 900px) {
+  /* the pane runs full width below 900px — a little more air for the years */
+  .timeline { --rail-col: 3.4rem; }
+}
+
+@media (max-width: 480px) {
+  .timeline {
+    --rail-col: 3rem;
+    --rail-gap: 0.72rem;
+    --rail-y: 1.02rem;              /* 0.4rem + 1.24rem / 2                     */
+  }
+  .slot-year { font-size: 0.72rem; line-height: 1.24rem; }
+  /* keep the shrinkable track: responsive.css sets `.slot { 3rem 1fr }` here */
+  .timeline .slot { grid-template-columns: var(--rail-col) minmax(0, 1fr); }
+}
+
+/* ---------- quiet, for those who asked ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .slot,
+  .slot-year,
+  .slot-empty,
+  .slot::before,
+  .slot::after { transition: none; }
+}
